@@ -1,0 +1,33 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build APK using PySide6 Docker
+      uses: docker://pyside/android:6.6.1-1
+      with:
+        args: >
+          bash -c "
+          apt-get update && apt-get install -y git &&
+          pip install -U pip &&
+          cd /github/workspace &&
+          pip install jdatetime &&
+          pyside6-android-deploy init --input-file='shahanshahi andoid.py' &&
+          pyside6-android-deploy build
+          "
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: App-Artifact
+        path: |
+          **/*.apk
+          **/*.aab
