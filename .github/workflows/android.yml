@@ -16,24 +16,23 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Dependencies
+    - name: Install Dependencies (Full)
       run: |
         pip install pyside6
         pip install jdatetime
-        pip install wget
+        # نصب پکیج‌های کم‌کرده که در ارور آمده بود
+        pip install jinja2 pkginfo tqdm packaging==24.1
 
-    - name: Install Qt for Android SDK
+    - name: Run PySide6 Deploy
       run: |
         pyside6-android-deploy init --input-file='shahanshahi andoid.py' --install-option accept-android-sdk-license --install-option accept-licenses
-        # تلاش برای ساخت با تنظیمات پیش فرض
-        pyside6-android-deploy build || true
+        pyside6-android-deploy build
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
-      if: always()
+      if: success()
       with:
         name: App-Artifact
         path: |
           build/build/outputs/apk/debug/*.apk
           build/**/*.apk
-        if-no-files-found: warn
