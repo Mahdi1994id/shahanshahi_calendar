@@ -16,11 +16,17 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install
+    - name: Install Dependencies
       run: |
-        pip install pyside6 jdatetime
+        pip install cython
+        pip install pyside6
         pip install python-for-android
 
-    - name: Build
+    - name: Build APK
       run: |
-        p4a apk --name "Shahanshahi" --package org.myapp.calendar --version 1.0 --private . --presplash shahanshahi.png --orientation portrait
+        p4a apk --name "Shahanshahi" \
+               --package "org.myapp.calendar" \
+               --version "1.0" \
+               --arch "arm64-v8a" \
+               --private . \
+               --orientation "portrait"
