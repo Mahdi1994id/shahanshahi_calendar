@@ -24,14 +24,22 @@ jobs:
 
     - name: Build APK
       run: |
-        # پیدا کردن فایل‌های wheel با دستور find لینوکس (راه حلی برای مشکل قبلی)
-        WHEEL_PYSIDE=$(find /opt/hostedtoolcache/Python/ -name "PySide6-*.whl" | head -n 1)
-        WHEEL_SHIBOKEN=$(find /opt/hostedtoolcache/Python/ -name "shiboken6-*.whl" | head -n 1)
+        # پیدا کردن فایل‌های wheel با دستور find
+        WHEEL_PYSIDE=$(find /opt/hostedtoolcache -name "PySide6-*.whl" | head -n 1)
+        WHEEL_SHIBOKEN=$(find /opt/hostedtoolcache -name "shiboken6-*.whl" | head -n 1)
+        
+        echo "Pyside: $WHEEL_PYSIDE"
+        echo "Shiboken: $WHEEL_SHIBOKEN"
 
-        # اگر find چیزی پیدا نکرد، به مسیرهای جایگزین نگاه میکنیم
-        if [ -z "$WHEEL_PYSIDE" ]; then
-            WHEEL_PYSIDE=$(python -c "import PySide6; import sys; print(sys.path[0] + '/site-packages/PySide6.dist-info/RECORD')" 2>/dev/null | head -c 1)
-        fi
+        # اجرای اسکریپت
+        python -m PySide6.scripts.android_deploy init --input-file='shahanshahi andoid.py' --wheel-pyside="$WHEEL_PYSIDE" --wheel-shiboken="$WHEEL_SHIBOKEN" --install-option accept-android-sdk-license --install-option accept-licenses
+        
+        python -m PySide6.scripts.android_deploy build
 
-        echo "Found Pyside: $WHEEL_PYSIDE"
-        echo "Found Shiboken: $WHEEL_SH
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: App-Artifact
+        path: |
+          build/build/outputs/apk/debug/*.apk
